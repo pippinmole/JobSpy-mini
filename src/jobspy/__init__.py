@@ -1,3 +1,4 @@
+import datetime
 from typing import Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -16,9 +17,9 @@ from .scrapers.exceptions import (
 
 
 class JobPost:
-    def __init__(self, title: str, company: str, location: dict, date_posted: str, job_url: str, company_url: str,
-                 job_type: str, description: str, is_remote: bool, num_urgent_words: int, benefits: str,
-                 emails: list[str], site: str, interval: str, min_amount: int, max_amount: int,
+    def __init__(self, title: str, company: str, location: dict, date_posted: datetime.date, job_url: str,
+                 company_url: str, job_type: str, description: str, is_remote: bool, num_urgent_words: int,
+                 benefits: str, emails: list[str], site: str, interval: str, min_amount: int, max_amount: int,
                  currency: str):
         self.title = title
         self.company = company
