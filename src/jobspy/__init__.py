@@ -1,4 +1,3 @@
-import pandas as pd
 from typing import Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -15,6 +14,46 @@ from .scrapers.exceptions import (
     GlassdoorException,
 )
 
+class JobPost:
+    def __init__(self, title: str, company: str, location: str, date_posted: str, job_url: str, company_url: str, job_type: str, description: str, is_remote: bool, num_urgent_words: int, benefits: str, emails: list[str], compensation: dict, site: str):
+        self.title = title
+        self.company = company
+        self.location = location
+        self.date_posted = date_posted
+        self.job_url = job_url
+        self.company_url = company_url
+        self.job_type = job_type
+        self.description = description
+        self.is_remote = is_remote
+        self.num_urgent_words = num_urgent_words
+        self.benefits = benefits
+        self.emails = emails
+        self.compensation = compensation
+        self.site = site
+
+    def __repr__(self):
+        return f"JobPost(title={self.title}, company={self.company}, location={self.location}, date_posted={self.date_posted}, job_url={self.job_url}, company_url={self.company_url}, job_type={self.job_type}, description={self.description}, is_remote={self.is_remote}, num_urgent_words={self.num_urgent_words}, benefits={self.benefits}, emails={self.emails}, compensation={self.compensation}, site={self.site})"
+
+    def __str__(self):
+        return f"JobPost(title={self.title}, company={self.company}, location={self.location}, date_posted={self.date_posted}, job_url={self.job_url}, company_url={self.company_url}, job_type={self.job_type}, description={self.description}, is_remote={self.is_remote}, num_urgent_words={self.num_urgent_words}, benefits={self.benefits}, emails={self.emails}, compensation={self.compensation}, site={self.site})"
+
+    def dict(self):
+        return {
+            "title": self.title,
+            "company": self.company,
+            "location": self.location,
+            "date_posted": self.date_posted,
+            "job_url": self.job_url,
+            "company_url": self.company_url,
+            "job_type": self.job_type,
+            "description": self.description,
+            "is_remote": self.is_remote,
+            "num_urgent_words": self.num_urgent_words,
+            "benefits": self.benefits,
+            "emails": self.emails,
+            "compensation": self.compensation,
+            "site": self.site,
+        }
 
 def scrape_jobs(
     site_name: str | list[str] | Site | list[Site] | None = None,
@@ -34,7 +73,7 @@ def scrape_jobs(
     offset: int | None = 0,
     hours_old: int = None,
     **kwargs,
-) -> pd.DataFrame:
+) -> list[JobPost]:
     """
     Simultaneously scrapes job data from multiple job sites.
     :return: results_wanted: pandas dataframe containing job data
@@ -109,7 +148,7 @@ def scrape_jobs(
             site_value, scraped_data = future.result()
             site_to_jobs_dict[site_value] = scraped_data
 
-    jobs_dfs: list[pd.DataFrame] = []
+    jobs_dfs: list[JobPost] = []
 
     for site, job_response in site_to_jobs_dict.items():
         for job in job_response.jobs:
@@ -148,30 +187,31 @@ def scrape_jobs(
                 job_data["max_amount"] = None
                 job_data["currency"] = None
 
-            job_df = pd.DataFrame([job_data])
-            jobs_dfs.append(job_df)
+            jobs_dfs.append(job_data)
 
-    if jobs_dfs:
-        jobs_df = pd.concat(jobs_dfs, ignore_index=True)
-        desired_order: list[str] = [
-            "job_url_hyper" if hyperlinks else "job_url",
-            "site",
-            "title",
-            "company",
-            "company_url",
-            "location",
-            "job_type",
-            "date_posted",
-            "interval",
-            "min_amount",
-            "max_amount",
-            "currency",
-            "is_remote",
-            "num_urgent_words",
-            "benefits",
-            "emails",
-            "description",
-        ]
-        return jobs_df[desired_order].sort_values(by=['site', 'date_posted'], ascending=[True, False])
-    else:
-        return pd.DataFrame()
+    return jobs_dfs
+
+    # if jobs_dfs:
+    #     jobs_df = pd.concat(jobs_dfs, ignore_index=True)
+    #     desired_order: list[str] = [
+    #         "job_url_hyper" if hyperlinks else "job_url",
+    #         "site",
+    #         "title",
+    #         "company",
+    #         "company_url",
+    #         "location",
+    #         "job_type",
+    #         "date_posted",
+    #         "interval",
+    #         "min_amount",
+    #         "max_amount",
+    #         "currency",
+    #         "is_remote",
+    #         "num_urgent_words",
+    #         "benefits",
+    #         "emails",
+    #         "description",
+    #     ]
+    #     return jobs_df[desired_order].sort_values(by=['site', 'date_posted'], ascending=[True, False])
+    # else:
+    #     return []

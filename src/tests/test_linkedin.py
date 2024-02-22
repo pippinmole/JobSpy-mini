@@ -1,5 +1,4 @@
 from ..jobspy import scrape_jobs
-import pandas as pd
 
 
 def test_linkedin():
@@ -8,5 +7,5 @@ def test_linkedin():
         search_term="software engineer",
     )
     assert (
-        isinstance(result, pd.DataFrame) and not result.empty
-    ), "Result should be a non-empty DataFrame"
+        isinstance(result, list) and not len(result) == 0
+    ), "Result should be a non-empty list"
