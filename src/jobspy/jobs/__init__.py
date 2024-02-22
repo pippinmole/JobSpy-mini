@@ -1,7 +1,6 @@
 from typing import Optional
 from datetime import date
 from enum import Enum
-from pydantic import BaseModel
 
 
 class JobType(Enum):
@@ -162,10 +161,12 @@ class Country(Enum):
         )
 
 
-class Location(BaseModel):
-    country: Country | None = None
-    city: Optional[str] = None
-    state: Optional[str] = None
+class Location:
+    def __init__(self, country: Optional[Country] = None, city: Optional[str] = None, state: Optional[str] = None):
+        self.country = country
+        self.city = city
+        self.state = state
+
 
     def display_location(self) -> str:
         location_parts = []
@@ -203,11 +204,12 @@ class CompensationInterval(Enum):
             return cls[pay_period].value if pay_period in cls.__members__ else None
 
 
-class Compensation(BaseModel):
-    interval: Optional[CompensationInterval] = None
-    min_amount: float | None = None
-    max_amount: float | None = None
-    currency: Optional[str] = "USD"
+class Compensation:
+    def __init__(self, interval: Optional[CompensationInterval] = None, min_amount: float | None = None, max_amount: float | None = None, currency: Optional[str] = "USD"):
+        self.interval = interval
+        self.min_amount = min_amount
+        self.max_amount = max_amount
+        self.currency = currency
 
 
 class DescriptionFormat(Enum):
@@ -215,24 +217,28 @@ class DescriptionFormat(Enum):
     HTML = "html"
 
 
-class JobPost(BaseModel):
-    title: str
-    company_name: str
-    job_url: str
-    location: Optional[Location]
+class JobPost:
+    def __init__(self, title: str, company_name: str, job_url: str, location: Optional[Location] = None,
+                 description: Optional[str] = None, company_url: Optional[str] = None,
+                 job_type: Optional[list[JobType]] = None, compensation: Optional[Compensation] = None,
+                 date_posted: Optional[date] = None, benefits: Optional[str] = None,
+                 emails: Optional[list[str]] = None, num_urgent_words: Optional[int] = None,
+                 is_remote: Optional[bool] = None):
+        self.title = title
+        self.company_name = company_name
+        self.job_url = job_url
+        self.location = location
+        self.description = description
+        self.company_url = company_url
+        self.job_type = job_type
+        self.compensation = compensation
+        self.date_posted = date_posted
+        self.benefits = benefits
+        self.emails = emails
+        self.num_urgent_words = num_urgent_words
+        self.is_remote = is_remote
 
-    description: str | None = None
-    company_url: str | None = None
 
-    job_type: list[JobType] | None = None
-    compensation: Compensation | None = None
-    date_posted: date | None = None
-    benefits: str | None = None
-    emails: list[str] | None = None
-    num_urgent_words: int | None = None
-    is_remote: bool | None = None
-    # company_industry: str | None = None
-
-
-class JobResponse(BaseModel):
-    jobs: list[JobPost] = []
+class JobResponse:
+    def __init__(self, jobs: list[JobPost]):
+        self.jobs = jobs
