@@ -9,8 +9,6 @@ import random
 from typing import Optional
 from datetime import datetime
 
-import requests
-from requests.exceptions import ProxyError
 from threading import Lock
 from bs4.element import Tag
 from bs4 import BeautifulSoup
