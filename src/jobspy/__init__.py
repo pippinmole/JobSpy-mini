@@ -14,8 +14,11 @@ from .scrapers.exceptions import (
     GlassdoorException,
 )
 
+
 class JobPost:
-    def __init__(self, title: str, company: str, location: str, date_posted: str, job_url: str, company_url: str, job_type: str, description: str, is_remote: bool, num_urgent_words: int, benefits: str, emails: list[str], compensation: dict, site: str):
+    def __init__(self, title: str, company: str, location: str, date_posted: str, job_url: str, company_url: str,
+                 job_type: str, description: str, is_remote: bool, num_urgent_words: int, benefits: str,
+                 emails: list[str], compensation: dict, site: str):
         self.title = title
         self.company = company
         self.location = location
@@ -55,24 +58,25 @@ class JobPost:
             "site": self.site,
         }
 
+
 def scrape_jobs(
-    site_name: str | list[str] | Site | list[Site] | None = None,
-    search_term: str | None = None,
-    location: str | None = None,
-    distance: int | None = None,
-    is_remote: bool = False,
-    job_type: str | None = None,
-    easy_apply: bool | None = None,
-    results_wanted: int = 15,
-    country_indeed: str = "usa",
-    hyperlinks: bool = False,
-    proxy: str | None = None,
-    description_format: str = "markdown",
-    linkedin_fetch_description: bool | None = False,
-    linkedin_company_ids: list[int] | None = None,
-    offset: int | None = 0,
-    hours_old: int = None,
-    **kwargs,
+        site_name: str | list[str] | Site | list[Site] | None = None,
+        search_term: str | None = None,
+        location: str | None = None,
+        distance: int | None = None,
+        is_remote: bool = False,
+        job_type: str | None = None,
+        easy_apply: bool | None = None,
+        results_wanted: int = 15,
+        country_indeed: str = "usa",
+        hyperlinks: bool = False,
+        proxy: str | None = None,
+        description_format: str = "markdown",
+        linkedin_fetch_description: bool | None = False,
+        linkedin_company_ids: list[int] | None = None,
+        offset: int | None = 0,
+        hours_old: int = None,
+        **kwargs,
 ) -> list[JobPost]:
     """
     Simultaneously scrapes job data from multiple job sites.
@@ -108,6 +112,7 @@ def scrape_jobs(
                 for site in site_name
             ]
         return site_types
+
     country_enum = Country.from_string(country_indeed)
 
     scraper_input = ScraperInput(
