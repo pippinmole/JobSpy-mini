@@ -16,22 +16,22 @@ from .scrapers.exceptions import (
 
 
 class JobPost:
-    def __init__(self, title: str, company: str, location: str, date_posted: str, job_url: str, company_url: str,
+    def __init__(self, title: str, company: str, location: dict, date_posted: str, job_url: str, company_url: str,
                  job_type: str, description: str, is_remote: bool, num_urgent_words: int, benefits: str,
                  emails: list[str], compensation: dict, site: str):
         self.title = title
         self.company = company
-        self.location = location
-        self.date_posted = date_posted
-        self.job_url = job_url
         self.company_url = company_url
-        self.job_type = job_type
+        self.job_url = job_url
+        self.location = location
         self.description = description
-        self.is_remote = is_remote
-        self.num_urgent_words = num_urgent_words
-        self.benefits = benefits
-        self.emails = emails
+        self.job_type = job_type
         self.compensation = compensation
+        self.date_posted = date_posted
+        self.emails = emails
+        self.num_urgent_words = num_urgent_words
+        self.is_remote = is_remote
+        self.benefits = benefits
         self.site = site
 
     def __repr__(self):
@@ -192,7 +192,27 @@ def scrape_jobs(
                 job_data["max_amount"] = None
                 job_data["currency"] = None
 
-            jobs_dfs.append(job_data)
+            jobs_dfs.append(JobPost(
+                title=job_data["title"],
+            company=job_data["company"],
+            location=job_data["location"],
+            date_posted=job_data["date_posted"],
+            job_url=job_data["job_url"],
+            company_url=job_data["company_url"],
+            job_type=job_data["job_type"],
+            description=job_data["description"],
+            is_remote=job_data["is_remote"],
+            num_urgent_words=job_data["num_urgent_words"],
+            benefits=job_data["benefits"],
+            emails=job_data["emails"],
+            compensation={
+                "interval": job_data["interval"],
+                "min_amount": job_data["min_amount"],
+                "max_amount": job_data["max_amount"],
+                "currency": job_data["currency"]
+            },
+            site=job_data["site"]
+        ))
 
     return jobs_dfs
 
