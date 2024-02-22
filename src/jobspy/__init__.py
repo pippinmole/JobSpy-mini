@@ -18,7 +18,8 @@ from .scrapers.exceptions import (
 class JobPost:
     def __init__(self, title: str, company: str, location: dict, date_posted: str, job_url: str, company_url: str,
                  job_type: str, description: str, is_remote: bool, num_urgent_words: int, benefits: str,
-                 emails: list[str], compensation: dict, site: str):
+                 emails: list[str], site: str, interval: str, min_amount: int, max_amount: int,
+                 currency: str):
         self.title = title
         self.company = company
         self.company_url = company_url
@@ -26,19 +27,22 @@ class JobPost:
         self.location = location
         self.description = description
         self.job_type = job_type
-        self.compensation = compensation
         self.date_posted = date_posted
         self.emails = emails
         self.num_urgent_words = num_urgent_words
         self.is_remote = is_remote
         self.benefits = benefits
         self.site = site
+        self.interval = interval
+        self.min_amount = min_amount
+        self.max_amount = max_amount
+        self.currency = currency
 
     def __repr__(self):
-        return f"JobPost(title={self.title}, company={self.company}, location={self.location}, date_posted={self.date_posted}, job_url={self.job_url}, company_url={self.company_url}, job_type={self.job_type}, description={self.description}, is_remote={self.is_remote}, num_urgent_words={self.num_urgent_words}, benefits={self.benefits}, emails={self.emails}, compensation={self.compensation}, site={self.site})"
+        return f"JobPost(title={self.title}, company={self.company}, location={self.location}, date_posted={self.date_posted}, job_url={self.job_url}, company_url={self.company_url}, job_type={self.job_type}, description={self.description}, is_remote={self.is_remote}, num_urgent_words={self.num_urgent_words}, benefits={self.benefits}, emails={self.emails}, site={self.site})"
 
     def __str__(self):
-        return f"JobPost(title={self.title}, company={self.company}, location={self.location}, date_posted={self.date_posted}, job_url={self.job_url}, company_url={self.company_url}, job_type={self.job_type}, description={self.description}, is_remote={self.is_remote}, num_urgent_words={self.num_urgent_words}, benefits={self.benefits}, emails={self.emails}, compensation={self.compensation}, site={self.site})"
+        return f"JobPost(title={self.title}, company={self.company}, location={self.location}, date_posted={self.date_posted}, job_url={self.job_url}, company_url={self.company_url}, job_type={self.job_type}, description={self.description}, is_remote={self.is_remote}, num_urgent_words={self.num_urgent_words}, benefits={self.benefits}, emails={self.emails}, site={self.site})"
 
     def dict(self):
         return {
@@ -54,7 +58,6 @@ class JobPost:
             "num_urgent_words": self.num_urgent_words,
             "benefits": self.benefits,
             "emails": self.emails,
-            "compensation": self.compensation,
             "site": self.site,
         }
 
@@ -194,25 +197,23 @@ def scrape_jobs(
 
             jobs_dfs.append(JobPost(
                 title=job_data["title"],
-            company=job_data["company"],
-            location=job_data["location"],
-            date_posted=job_data["date_posted"],
-            job_url=job_data["job_url"],
-            company_url=job_data["company_url"],
-            job_type=job_data["job_type"],
-            description=job_data["description"],
-            is_remote=job_data["is_remote"],
-            num_urgent_words=job_data["num_urgent_words"],
-            benefits=job_data["benefits"],
-            emails=job_data["emails"],
-            compensation={
-                "interval": job_data["interval"],
-                "min_amount": job_data["min_amount"],
-                "max_amount": job_data["max_amount"],
-                "currency": job_data["currency"]
-            },
-            site=job_data["site"]
-        ))
+                company=job_data["company"],
+                location=job_data["location"],
+                date_posted=job_data["date_posted"],
+                job_url=job_data["job_url"],
+                company_url=job_data["company_url"],
+                job_type=job_data["job_type"],
+                description=job_data["description"],
+                is_remote=job_data["is_remote"],
+                num_urgent_words=job_data["num_urgent_words"],
+                benefits=job_data["benefits"],
+                emails=job_data["emails"],
+                interval=job_data["interval"],
+                min_amount=job_data["min_amount"],
+                max_amount=job_data["max_amount"],
+                currency=job_data["currency"],
+                site=job_data["site"]
+            ))
 
     return jobs_dfs
 
