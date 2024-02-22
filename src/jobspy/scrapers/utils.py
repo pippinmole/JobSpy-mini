@@ -1,6 +1,5 @@
 import re
 import logging
-import numpy as np
 
 import html2text
 import tls_client
@@ -104,6 +103,6 @@ def currency_parser(cur_str):
     else:
         num = float(cur_str)
 
-    return np.round(num, 2)
+    return round(num, 2)
 
 
