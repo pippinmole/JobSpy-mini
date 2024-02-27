@@ -2,7 +2,7 @@ import datetime
 from typing import Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from .jobs import JobType, Location
+from .jobs import JobType, Location, JobPost, Compensation, DescriptionFormat
 from .scrapers.indeed import IndeedScraper
 from .scrapers.ziprecruiter import ZipRecruiterScraper
 from .scrapers.glassdoor import GlassdoorScraper
@@ -14,53 +14,6 @@ from .scrapers.exceptions import (
     ZipRecruiterException,
     GlassdoorException,
 )
-
-
-class JobPost:
-    def __init__(self, title: str, company: str, location: dict, date_posted: datetime.date, job_url: str,
-                 company_url: str, job_type: str, description: str, is_remote: bool, num_urgent_words: int,
-                 benefits: str, emails: list[str], site: str, interval: str, min_amount: int, max_amount: int,
-                 currency: str):
-        self.title = title
-        self.company = company
-        self.company_url = company_url
-        self.job_url = job_url
-        self.location = location
-        self.description = description
-        self.job_type = job_type
-        self.date_posted = date_posted
-        self.emails = emails
-        self.num_urgent_words = num_urgent_words
-        self.is_remote = is_remote
-        self.benefits = benefits
-        self.site = site
-        self.interval = interval
-        self.min_amount = min_amount
-        self.max_amount = max_amount
-        self.currency = currency
-
-    def __repr__(self):
-        return f"JobPost(title={self.title}, company={self.company}, location={self.location}, date_posted={self.date_posted}, job_url={self.job_url}, company_url={self.company_url}, job_type={self.job_type}, description={self.description}, is_remote={self.is_remote}, num_urgent_words={self.num_urgent_words}, benefits={self.benefits}, emails={self.emails}, site={self.site})"
-
-    def __str__(self):
-        return f"JobPost(title={self.title}, company={self.company}, location={self.location}, date_posted={self.date_posted}, job_url={self.job_url}, company_url={self.company_url}, job_type={self.job_type}, description={self.description}, is_remote={self.is_remote}, num_urgent_words={self.num_urgent_words}, benefits={self.benefits}, emails={self.emails}, site={self.site})"
-
-    def dict(self):
-        return {
-            "title": self.title,
-            "company": self.company,
-            "location": self.location,
-            "date_posted": self.date_posted,
-            "job_url": self.job_url,
-            "company_url": self.company_url,
-            "job_type": self.job_type,
-            "description": self.description,
-            "is_remote": self.is_remote,
-            "num_urgent_words": self.num_urgent_words,
-            "benefits": self.benefits,
-            "emails": self.emails,
-            "site": self.site,
-        }
 
 
 def scrape_jobs(
@@ -75,7 +28,7 @@ def scrape_jobs(
         country_indeed: str = "usa",
         hyperlinks: bool = False,
         proxy: str | None = None,
-        description_format: str = "markdown",
+        description_format: DescriptionFormat = "markdown",
         linkedin_fetch_description: bool | None = False,
         linkedin_company_ids: list[int] | None = None,
         offset: int | None = 0,
@@ -142,7 +95,7 @@ def scrape_jobs(
         scraped_data: JobResponse = scraper.scrape(scraper_input)
         return site.value, scraped_data
 
-    site_to_jobs_dict = {}
+    site_to_jobs_dict: dict[str, JobResponse] = {}
 
     def worker(site):
         site_val, scraped_info = scrape_site(site)
@@ -161,84 +114,62 @@ def scrape_jobs(
 
     for site, job_response in site_to_jobs_dict.items():
         for job in job_response.jobs:
-            job_data = job.dict()
-            job_data[
-                "job_url_hyper"
-            ] = f'<a href="{job_data["job_url"]}">{job_data["job_url"]}</a>'
-            job_data["site"] = site
-            job_data["company"] = job_data["company_name"]
-            job_data["job_type"] = (
-                ", ".join(job_type.value[0] for job_type in job_data["job_type"])
-                if job_data["job_type"]
-                else None
-            )
-            job_data["emails"] = (
-                ", ".join(job_data["emails"]) if job_data["emails"] else None
-            )
-            if job_data["location"]:
-                job_data["location"] = Location(
-                    **job_data["location"]
-                ).display_location()
+            jobs_dfs.append(job)
 
-            compensation_obj = job_data.get("compensation")
-            if compensation_obj and isinstance(compensation_obj, dict):
-                job_data["interval"] = (
-                    compensation_obj.get("interval").value
-                    if compensation_obj.get("interval")
-                    else None
-                )
-                job_data["min_amount"] = compensation_obj.get("min_amount")
-                job_data["max_amount"] = compensation_obj.get("max_amount")
-                job_data["currency"] = compensation_obj.get("currency", "USD")
-            else:
-                job_data["interval"] = None
-                job_data["min_amount"] = None
-                job_data["max_amount"] = None
-                job_data["currency"] = None
+            # job_data[
+            #     "job_url_hyper"
+            # ] = f'<a href="{job_data["job_url"]}">{job_data["job_url"]}</a>'
+            # job_data["site"] = site
+            # job_data["company"] = job_data["company_name"]
 
-            jobs_dfs.append(JobPost(
-                title=job_data["title"],
-                company=job_data["company"],
-                location=job_data["location"],
-                date_posted=job_data["date_posted"],
-                job_url=job_data["job_url"],
-                company_url=job_data["company_url"],
-                job_type=job_data["job_type"],
-                description=job_data["description"],
-                is_remote=job_data["is_remote"],
-                num_urgent_words=job_data["num_urgent_words"],
-                benefits=job_data["benefits"],
-                emails=job_data["emails"],
-                interval=job_data["interval"],
-                min_amount=job_data["min_amount"],
-                max_amount=job_data["max_amount"],
-                currency=job_data["currency"],
-                site=job_data["site"]
-            ))
+            # job.job_type = (
+            #     ", ".join(job_type.value[0] for job_type in job.job_type)
+            #     if job.job_type
+            #     else None
+            # )
+            # job.emails = (
+            #     ", ".join(job.emails) if job.emails else None
+            # )
+            # if job.location:
+            #     job.location = Location(
+            #         **job.location
+            #     ).display_location()
+            #
+            # compensation_obj = job_data.get("compensation")
+            # if compensation_obj and isinstance(compensation_obj, dict):
+            #     job_data["interval"] = (
+            #         compensation_obj.get("interval").value
+            #         if compensation_obj.get("interval")
+            #         else None
+            #     )
+            #     job_data["min_amount"] = compensation_obj.get("min_amount")
+            #     job_data["max_amount"] = compensation_obj.get("max_amount")
+            #     job_data["currency"] = compensation_obj.get("currency", "USD")
+            # else:
+            #     job_data["interval"] = None
+            #     job_data["min_amount"] = None
+            #     job_data["max_amount"] = None
+            #     job_data["currency"] = None
+            #
+            # jobs_dfs.append(JobPost(
+            #     title=job_data["title"],
+            #     company_name=job_data["company"],
+            #     location=job_data["location"],
+            #     date_posted=job_data["date_posted"],
+            #     job_url=job_data["job_url"],
+            #     company_url=job_data["company_url"],
+            #     job_type=job_data["job_type"],
+            #     description=job_data["description"],
+            #     is_remote=job_data["is_remote"],
+            #     num_urgent_words=job_data["num_urgent_words"],
+            #     benefits=job_data["benefits"],
+            #     emails=job_data["emails"],
+            #     compensation=Compensation(
+            #         interval=job_data["interval"],
+            #         min_amount=job_data["min_amount"],
+            #         max_amount=job_data["max_amount"],
+            #         currency=job_data["currency"],
+            #     ),
+            # ))
 
     return jobs_dfs
-
-    # if jobs_dfs:
-    #     jobs_df = pd.concat(jobs_dfs, ignore_index=True)
-    #     desired_order: list[str] = [
-    #         "job_url_hyper" if hyperlinks else "job_url",
-    #         "site",
-    #         "title",
-    #         "company",
-    #         "company_url",
-    #         "location",
-    #         "job_type",
-    #         "date_posted",
-    #         "interval",
-    #         "min_amount",
-    #         "max_amount",
-    #         "currency",
-    #         "is_remote",
-    #         "num_urgent_words",
-    #         "benefits",
-    #         "emails",
-    #         "description",
-    #     ]
-    #     return jobs_df[desired_order].sort_values(by=['site', 'date_posted'], ascending=[True, False])
-    # else:
-    #     return []

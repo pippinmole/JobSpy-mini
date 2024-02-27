@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "python-jobspy-mini"
-version = "1.1.52"
+version = "1.1.53"
 description = "Job scraper for LinkedIn, Indeed, Glassdoor & ZipRecruiter"
 authors = []
 homepage = "https://github.com/Bunsly/JobSpy"

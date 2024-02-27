@@ -167,7 +167,6 @@ class Location:
         self.city = city
         self.state = state
 
-
     def display_location(self) -> str:
         location_parts = []
         if self.city:
@@ -205,7 +204,8 @@ class CompensationInterval(Enum):
 
 
 class Compensation:
-    def __init__(self, interval: Optional[CompensationInterval] = None, min_amount: float | None = None, max_amount: float | None = None, currency: Optional[str] = "USD"):
+    def __init__(self, interval: Optional[CompensationInterval] = None, min_amount: float | None = None,
+                 max_amount: float | None = None, currency: Optional[str] = "USD"):
         self.interval = interval
         self.min_amount = min_amount
         self.max_amount = max_amount
@@ -237,6 +237,23 @@ class JobPost:
         self.emails = emails
         self.num_urgent_words = num_urgent_words
         self.is_remote = is_remote
+
+    def dict(self):
+        return {
+            "title": self.title,
+            "company_name": self.company_name,
+            "job_url": self.job_url,
+            "location": self.location,
+            "description": self.description,
+            "company_url": self.company_url,
+            "job_type": self.job_type,
+            "compensation": self.compensation,
+            "date_posted": self.date_posted,
+            "benefits": self.benefits,
+            "emails": self.emails,
+            "num_urgent_words": self.num_urgent_words,
+            "is_remote": self.is_remote
+        }
 
 
 class JobResponse:
