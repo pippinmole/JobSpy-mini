@@ -167,6 +167,7 @@ persist, [submit an issue](https://github.com/Bunsly/JobSpy/issues).
 - Waiting some time between scrapes (site-dependent).
 - Trying a VPN or proxy to change your IP address.
 
+
 ---
 
 
